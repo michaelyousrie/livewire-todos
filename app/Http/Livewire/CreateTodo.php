@@ -19,8 +19,11 @@ class CreateTodo extends Component
     public function createTodo()
     {
         $this->validate([
-            'todoTitle' => 'required',
+            'todoTitle' => 'required|unique:todos,title',
             'todoBody' => 'required',
+        ], [
+            'todoTitle.unique' => 'You already have a Todo with the same title!',
+            'todoBody.required' => "You can't have a todo without a body!"
         ]);
 
         Auth::user()->todos()->save(

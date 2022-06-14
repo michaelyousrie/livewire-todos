@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Todo;
 use Livewire\Livewire;
 use App\Http\Livewire\CreateTodo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -66,5 +67,21 @@ class CreateTodoTest extends TestCase
             ->assertHasErrors(['todoBody' => 'required']);
 
         $this->assertDatabaseMissing('todos', ['todoTitle' => "My Title"]);
+    }
+
+    /** @test */
+    public function it_fails_if_title_is_not_unique()
+    {
+        $this->makeUserAndLogin();
+
+        // giving that we have an item with the title 'my title'
+        Todo::factory()->create(['title' => 'my title']);
+
+        // make sure that we can NOT make a new item with that same title.
+        Livewire::test(CreateTodo::class)
+            ->set('todoTitle', "my title")
+            ->set("todoBody", "My Body")
+            ->call("createTodo")
+            ->assertHasErrors(['todoTitle' => 'unique']);
     }
 }
